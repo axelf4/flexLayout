@@ -38,10 +38,6 @@ static float getFlex(const struct FlexParams *params) {
 	return params->flex;
 }
 
-static int isFlex(const struct FlexParams *params) {
-	return getFlex(params) != 0;
-}
-
 static int isFlexBasisAuto(const struct FlexParams *params) {
 	return getFlex(params) <= 0;
 }
@@ -113,10 +109,8 @@ void layoutFlex(const struct LayoutContext *layoutContext, const void *widget, f
 		// Store the basis in the child's dimension on the main axis
 		(mainAxis == DIRECTION_ROW ? layoutContext->setWidth : layoutContext->setHeight)(child, basis);
 		sizeConsumed += basis + getMargin(params, mainAxis);
-		if (isFlex(child)) {
-			totalFlexGrowFactors += getFlexGrowFactor(params);
-			totalFlexShrinkScaledFactors += getFlexShrinkFactor(params) * basis;
-		}
+		totalFlexGrowFactors += getFlexGrowFactor(params);
+		totalFlexShrinkScaledFactors += getFlexShrinkFactor(params) * basis;
 	}
 
 	// Layout flexible children and allocate empty space
