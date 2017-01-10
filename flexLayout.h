@@ -2,8 +2,8 @@
  * Routines for performing layout on flex containers with variable numbers of children.
  * @file
  */
-#ifndef RMGUI_H
-#define RMGUI_H
+#ifndef FLEX_LAYOUT_H
+#define FLEX_LAYOUT_H
 
 #ifdef __cplusplus
 extern "C" {
