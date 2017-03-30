@@ -155,14 +155,14 @@ typedef struct FlexParams {
 	float width;
 	/** The height of the item or #UNDEFINED. */
 	float height;
-	/** The margin space required on the left of the item. */
-	float marginLeft;
 	/** The margin space required on the top of the item. */
 	float marginTop;
 	/** The margin space required on the right of the item. */
 	float marginRight;
 	/** The margin space required on the bottom of the item. */
 	float marginBottom;
+	/** The margin space required on the left of the item. */
+	float marginLeft;
 } FlexParams;
 
 /**
