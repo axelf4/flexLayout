@@ -128,16 +128,11 @@ void layoutFlex(const struct LayoutContext *layoutContext, const void *widget, f
 			if (flexGrowFactor != 0) childBasis += remainingSpace / totalFlexGrowFactors * flexGrowFactor;
 		}
 
-		const float childMainSize = childBasis, childCrossSize = isUndefined(childCrossStyleSize) ? availableCross : childCrossStyleSize;
-		const MeasureMode childMainMode = MEASURE_EXACTLY,
-			  childCrossMode = !isUndefined(childCrossStyleSize) || crossMeasureMode == MEASURE_EXACTLY && getAlign(params) == ALIGN_STRETCH
-				  ? MEASURE_EXACTLY
-				  : crossMeasureMode == MEASURE_UNSPECIFIED ? MEASURE_UNSPECIFIED : MEASURE_AT_MOST;
-		if (mainAxis == DIRECTION_ROW) {
-			layoutContext->layout(child, childMainSize, childMainMode, childCrossSize, childCrossMode);
-		} else {
-			layoutContext->layout(child, childCrossSize, childCrossMode, childMainSize, childMainMode);
-		}
+		const float childCrossSize = isUndefined(childCrossStyleSize) ? availableCross : childCrossStyleSize;
+		const MeasureMode childCrossMode = !isUndefined(childCrossStyleSize) || crossMeasureMode == MEASURE_EXACTLY && getAlign(params) == ALIGN_STRETCH
+				  ? MEASURE_EXACTLY : crossMeasureMode == MEASURE_UNSPECIFIED ? MEASURE_UNSPECIFIED : MEASURE_AT_MOST;
+		if (mainAxis == DIRECTION_ROW) layoutContext->layout(child, childBasis, MEASURE_EXACTLY, childCrossSize, childCrossMode);
+		else layoutContext->layout(child, childCrossSize, childCrossMode, childBasis, MEASURE_EXACTLY);
 	}
 	if (totalFlexGrowFactors == 0 && remainingSpace > 0 && mainMeasureMode == MEASURE_EXACTLY) {
 		// Allocate remaining space according to justify.
