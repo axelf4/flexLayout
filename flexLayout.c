@@ -112,28 +112,8 @@ void layoutFlex(const struct LayoutContext *layoutContext, const void *widget, f
 	}
 
 	// Layout flexible children and allocate empty space
-	float leadingMainSize = 0, betweenMain = 0;
 	const float remainingSpace = availableMain ? availableMain - sizeConsumed : 0; // The remaining available space in the main axis
-	for (int i = 0; i < childCount; ++i) {
-		const void *child = layoutContext->getChildAt(widget, i);
-		const struct FlexParams *params = layoutContext->getLayoutParams(child);
-		const float childCrossStyleSize = getStyleSize(params, crossAxis);
-		float childBasis = layoutContext->getWidth(child);
-
-		if (remainingSpace < 0) {
-			const float flexShrinkScaledFactor = getFlexShrinkFactor(params) * childBasis;
-			if (flexShrinkScaledFactor != 0) childBasis += remainingSpace / totalFlexShrinkScaledFactors * flexShrinkScaledFactor;
-		} else if (remainingSpace > 0) {
-			const float flexGrowFactor = getFlexGrowFactor(params);
-			if (flexGrowFactor != 0) childBasis += remainingSpace / totalFlexGrowFactors * flexGrowFactor;
-		}
-
-		const float childCrossSize = isUndefined(childCrossStyleSize) ? availableCross : childCrossStyleSize;
-		const MeasureMode childCrossMode = !isUndefined(childCrossStyleSize) || crossMeasureMode == MEASURE_EXACTLY && getAlign(params) == ALIGN_STRETCH
-				  ? MEASURE_EXACTLY : crossMeasureMode == MEASURE_UNSPECIFIED ? MEASURE_UNSPECIFIED : MEASURE_AT_MOST;
-		if (mainAxis == DIRECTION_ROW) layoutContext->layout(child, childBasis, MEASURE_EXACTLY, childCrossSize, childCrossMode);
-		else layoutContext->layout(child, childCrossSize, childCrossMode, childBasis, MEASURE_EXACTLY);
-	}
+	float leadingMainSize = 0, betweenMain = 0;
 	if (totalFlexGrowFactors == 0 && remainingSpace > 0 && mainMeasureMode == MEASURE_EXACTLY) {
 		// Allocate remaining space according to justify.
 		switch (justify) {
@@ -153,12 +133,28 @@ void layoutFlex(const struct LayoutContext *layoutContext, const void *widget, f
 				break;
 		}
 	}
-
-	// Position elements in the main axis
 	int mainSize = leadingMainSize, crossSize = 0;
 	for (int i = 0; i < childCount; ++i) {
 		const void *child = layoutContext->getChildAt(widget, i);
 		const struct FlexParams *params = layoutContext->getLayoutParams(child);
+		const float childCrossStyleSize = getStyleSize(params, crossAxis);
+		float childBasis = layoutContext->getWidth(child);
+
+		if (remainingSpace < 0) {
+			const float flexShrinkScaledFactor = getFlexShrinkFactor(params) * childBasis;
+			if (flexShrinkScaledFactor != 0) childBasis += remainingSpace / totalFlexShrinkScaledFactors * flexShrinkScaledFactor;
+		} else if (remainingSpace > 0) {
+			const float flexGrowFactor = getFlexGrowFactor(params);
+			if (flexGrowFactor != 0) childBasis += remainingSpace / totalFlexGrowFactors * flexGrowFactor;
+		}
+
+		const float childCrossSize = isUndefined(childCrossStyleSize) ? availableCross : childCrossStyleSize;
+		const MeasureMode childCrossMode = !isUndefined(childCrossStyleSize) || crossMeasureMode == MEASURE_EXACTLY && getAlign(params) == ALIGN_STRETCH
+				  ? MEASURE_EXACTLY : crossMeasureMode == MEASURE_UNSPECIFIED ? MEASURE_UNSPECIFIED : MEASURE_AT_MOST;
+		if (mainAxis == DIRECTION_ROW) layoutContext->layout(child, childBasis, MEASURE_EXACTLY, childCrossSize, childCrossMode);
+		else layoutContext->layout(child, childCrossSize, childCrossMode, childBasis, MEASURE_EXACTLY);
+
+		// Position elements in the main axis
 		(mainAxis == DIRECTION_ROW ? layoutContext->setX : layoutContext->setY)(child, mainSize + getLeadingMargin(params, mainAxis));
 		mainSize += betweenMain + getLayoutSize(layoutContext, child, mainAxis) + getMargin(params, mainAxis);
 		crossSize = MAX(crossSize, getLayoutSize(layoutContext, child, crossAxis) + getMargin(params, crossAxis));
