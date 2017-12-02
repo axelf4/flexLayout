@@ -1,0 +1,3 @@
+language: c
+sudo: false
+script: mkdir build && cd build && cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_FLAGS="-std=c99" .. && cmake --build .
